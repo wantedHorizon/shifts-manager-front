@@ -11,6 +11,8 @@
     <v-data-table
       :headers="headers"
       :items="shifts"
+      sort-desc
+      sort-by="id"
       item-key="name"
       class="elevation-1"
     ></v-data-table>
@@ -22,12 +24,15 @@ import { getShifts } from "../service/shifts";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import RegisterUserModal from "./RegisterUserModal.vue";
+// import io from 'socket.io-client';
+
 export default {
   components: { RegisterUserModal },
   name: "EnterExit",
 
   data: () => ({
     shifts: [],
+    isConnected:false,
     isOnlyActive: false,
     dialog: false,
     headers: [
@@ -38,6 +43,23 @@ export default {
       { text: "Logged In Time", value: "time" },
     ],
   }),
+  sockets: {
+     connect() {
+      // Fired when the socket connects.
+      this.isConnected = true;
+    },
+
+    disconnect() {
+      this.isConnected = false;
+    },
+
+    // Fired when the server sends something on the "messageChannel" channel.
+    completeUpdate() {
+     console.log("update");
+      this.getUpdatedShifts();
+
+    }
+  },
   watch: {
     isOnlyActive: function () {
       this.getUpdatedShifts();
@@ -61,12 +83,13 @@ export default {
 
           return { id, user_id, enter, exit, time };
         });
-      this.shifts = newShifts;
+      this.shifts = [...newShifts];
     },
  
   },
   mounted: function () {
     this.getUpdatedShifts();
+
   },
 };
 </script>
