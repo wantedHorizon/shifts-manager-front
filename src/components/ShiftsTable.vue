@@ -3,10 +3,12 @@
     <v-row class="d-flex justify-space-between">
       <v-switch v-model="isOnlyActive" label="Only Active Shifts"></v-switch>
       <v-col cols="3">
-        <v-btn block color="primary" @click="dialog=true">Register New User</v-btn>
+        <v-btn block color="primary" @click="dialog = true"
+          >Register New User</v-btn
+        >
       </v-col>
     </v-row>
-    <register-user-modal :dialog="dialog" v-on:closeDialog="dialog=false">
+    <register-user-modal :dialog="dialog" v-on:closeDialog="dialog = false">
     </register-user-modal>
     <v-data-table
       :headers="headers"
@@ -32,7 +34,7 @@ export default {
 
   data: () => ({
     shifts: [],
-    isConnected:false,
+    isConnected: false,
     isOnlyActive: false,
     dialog: false,
     headers: [
@@ -44,7 +46,7 @@ export default {
     ],
   }),
   sockets: {
-     connect() {
+    connect() {
       // Fired when the socket connects.
       this.isConnected = true;
     },
@@ -55,10 +57,9 @@ export default {
 
     // Fired when the server sends something on the "messageChannel" channel.
     completeUpdate() {
-     console.log("update");
+      console.log("update");
       this.getUpdatedShifts();
-
-    }
+    },
   },
   watch: {
     isOnlyActive: function () {
@@ -73,23 +74,34 @@ export default {
         .filter((shift) => !this.isOnlyActive || !shift.exit)
         .map((shift) => {
           const { id, enter, exit, user_id } = shift;
+          const enterTime = dayjs(enter)
+            .format("MMMM D, YYYY h:mm A")
+            .toString();
+          console.log("enterTime", enterTime);
           const date1 = dayjs(enter);
           let date2 = exit ? dayjs(exit) : dayjs();
 
           dayjs.extend(utc);
-          const time = dayjs
-            .utc(date2.unix() - date1.unix() * 1000)
-            .format("HH:mm");
+          const time = dayjs.utc(date2.diff(date1, "millisecond"));
 
-          return { id, user_id, enter, exit, time };
+          const time2 =
+            time.unix() >= 86400
+              ? time.format("D[d]:HH[h]:mm[m]")
+              : time.format("HH[h]:mm[m]");
+
+          return {
+            id,
+            user_id,
+            enter: enterTime,
+            exit: exit && dayjs(exit).format("MMMM D, YYYY h:mm A"),
+            time: time2,
+          };
         });
       this.shifts = [...newShifts];
     },
- 
   },
   mounted: function () {
     this.getUpdatedShifts();
-
   },
 };
 </script>
