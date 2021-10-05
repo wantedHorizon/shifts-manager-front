@@ -59,11 +59,11 @@ export default {
     onEnterClick: async function () {
       const data = await enter(this.id1);
 
-      // if (data.err) {
-      //   alert("Entring Failed Try another ID");
-      // } else {
-      //   alert(`user ${data.user_id} enterd successfuly!`);
-      // }
+      if (data.err) {
+        alert("Entring Failed Try another ID");
+      } else {
+        alert(`user ${data.user_id} enterd successfuly!`);
+      }
       console.log(data);
 
       this.id1 = "";
@@ -72,11 +72,11 @@ export default {
     onExitClick: async function () {
       const data = await exit(this.id1);
 
-      // if (data.err) {
-      //   alert("Entring Failed Try another ID");
-      // } else {
-      //   alert(`user ${data.user_id} exited successfuly!`);
-      // }
+      if (data.err) {
+        alert("Entring Failed Try another ID");
+      } else {
+        alert(`user ${data.user_id} exited successfuly!`);
+      }
       console.log(data);
       this.id1 = "";
     },
